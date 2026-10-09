@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <title>Soul Decoder App</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background-color: #f4f7f6; margin: 0; padding: 25px; color: #333; }
+        .container { max-width: 1050px; background: white; margin: 0 auto; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        h1 { color: #4A154B; text-align: center; margin-bottom: 5px; }
+        .sub { text-align: center; color: #7f8c8d; margin-bottom: 25px; }
+        fieldset { border: 1px solid #ddd; border-radius: 8px; padding: 15px; margin-bottom: 15px; background: #fff; }
+        legend { font-weight: bold; color: #2c3e50; padding: 0 10px; }
+        .form-group { margin-bottom: 12px; }
+        label { display: block; margin-bottom: 4px; font-weight: 600; font-size: 13px; }
+        input, select { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; background: white; }
+        .suwak-container { background: #FAF5FA; border: 2px solid #4A154B; padding: 15px; border-radius: 8px; margin: 20px 0; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 15px; }
+        .card { background: #f9f9f9; padding: 15px; border-radius: 8px; border-left: 5px solid #4A154B; margin-bottom: 10px; }
+        .card.karma { border-left-color: #C0392B; }
+        .card.transgresja { border-left-color: #104F55; background: #f0f4f8; }
+        .card.match { border-left-color: #2980b9; background: #e3f2fd; font-weight: bold; color: #154360; padding: 12px; border-radius: 6px; }
+        .num { font-size: 22px; font-weight: bold; color: #4A154B; }
+        .profile-title { background: #4A154B; color: white; padding: 8px 12px; border-radius: 6px; margin-top: 25px; margin-bottom: 15px; }
+        .mini-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+        .mini-card { background: #fff; padding: 10px; border-radius: 6px; border: 1px solid #eee; text-align: center; font-size: 12px; }
+        .mini-card strong { display: block; font-size: 16px; color: #4A154B; }
+        .btn { display:inline-block; border:0; border-radius:7px; padding:12px 18px; background:#104F55; color:#fff; font-weight:700; cursor:pointer; }
+        .btn:hover { filter:brightness(.94); }
+        input:focus, select:focus { outline:2px solid #b79b68; outline-offset:1px; }
+        @media (max-width:700px) { body { padding:10px; } .container { padding:16px; } .grid { grid-template-columns:1fr; gap:10px; } .mini-grid { grid-template-columns:repeat(2,1fr); } }
+        @media print { body { background:#fff; padding:0; } .container { box-shadow:none; max-width:none; } form, .btn { display:none !important; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔮 Soul Decoder App</h1>
+        <p class="sub">Matryce Przeznaczenia i Wielopokoleniowe Konstelacje Relacji (Maksymalnie 10 Osób)</p>
+        
+        <form method="POST">
+            <fieldset style="border-color: #4A154B; background: #FAF5FA;">
+                <legend style="color: #4A154B;">Profil Główny</legend>
+                <div class="grid">
+                    <div class="form-group"><label>Imię / Oznaczenie:</label><input type="text" name="imie1" value="{{ imie1 }}" required></div>
+                    <div class="form-group"><label>Data Urodzenia:</label><input type="date" name="data_ur1" value="{{ data_ur1 }}" required></div>
+                    <div class="form-group">
+                        <label>Status osoby:</label>
+                        <select name="status1" onchange="this.form.submit()">
+                            <option value="ZYJE" {% if status1 == "ZYJE" %}selected{% endif %}>Osoba żyjąca</option>
+                            <option value="TRANSGRESJA" {% if status1 == "TRANSGRESJA" %}selected{% endif %}>Osoba nieżyjąca (Po transformacji)</option>
+                        </select>
+                    </div>
+                    {% if status1 == "TRANSGRESJA" %}
+                    <div class="form-group"><label>Data Transformacji (Przejścia):</label><input type="date" name="data_sm1" value="{{ data_sm1 }}" required></div>
+                    {% endif %}
+                </div>
+            </fieldset>
+
+            <div class="suwak-container">
+                <label style="color:#4A154B;">Liczba osób do dołączenia do analizy (Maksymalnie 10): <b>{{ ile_osob }}</b></label>
+                <input type="range" name="ile_osob" min="1" max="10" value="{{ ile_osob }}" onchange="this.form.submit()" style="accent-color: #4A154B; margin-top:8px;">
+            </div>
+
+            <h3 style="color:#104F55; border-bottom: 2px solid #104F55; padding-bottom:5px;">2. Konstelacja Relacji</h3>
+            <div class="grid">
+                                {% for i in range(ile_osob) %}
+                <fieldset style="border-color: #104F55;">
+                    <legend style="color: #104F55;">Osoba {{ i + 1 }}</legend>
+                    <div class="form-group">
+                        <label>Relacja / Pokrewieństwo:</label>
+                        <select name="p_rel_{{ i }}">
+                            {% set wybrana_rola = aktywne_role[i] if i < aktywne_role|length else "Brat" %}
+                            <option value="Brat" {% if wybrana_rola == "Brat" %}selected{% endif %}>Brat</option>
+                            <option value="Siostra" {% if wybrana_rola == "Siostra" %}selected{% endif %}>Siostra</option>
+                            <option value="Partner" {% if wybrana_rola == "Partner" %}selected{% endif %}>Partner</option>
+                            <option value="Partnerka" {% if wybrana_rola == "Partnerka" %}selected{% endif %}>Partnerka</option>
+                            <option value="Mąż" {% if wybrana_rola == "Mąż" %}selected{% endif %}>Mąż</option>
+                            <option value="Żona" {% if wybrana_rola == "Żona" %}selected{% endif %}>Żona</option>
+                            <option value="Syn" {% if wybrana_rola == "Syn" %}selected{% endif %}>Syn</option>
+                            <option value="Córka" {% if wybrana_rola == "Córka" %}selected{% endif %}>Córka</option>
+                            <option value="Bratanek" {% if wybrana_rola == "Bratanek" %}selected{% endif %}>Bratanek</option>
+                            <option value="Siostrzeniec" {% if wybrana_rola == "Siostrzeniec" %}selected{% endif %}>Siostrzeniec</option>
+                            <option value="Mama" {% if wybrana_rola == "Mama" %}selected{% endif %}>Mama</option>
+                            <option value="Ojciec" {% if wybrana_rola == "Ojciec" %}selected{% endif %}>Ojciec</option>
+                            <option value="Ciotka" {% if wybrana_rola == "Ciotka" %}selected{% endif %}>Ciotka</option>
+                            <option value="Wujek" {% if wybrana_rola == "Wujek" %}selected{% endif %}>Wujek</option>
+                            <option value="Babcia" {% if wybrana_rola == "Babcia" %}selected{% endif %}>Babcia</option>
+                            <option value="Dziadek" {% if wybrana_rola == "Dziadek" %}selected{% endif %}>Dziadek</option>
+                            <option value="Prababcia" {% if wybrana_rola == "Prababcia" %}selected{% endif %}>Prababcia</option>
+                            <option value="Pradziadek" {% if wybrana_rola == "Pradziadek" %}selected{% endif %}>Pradziadek</option>
+                            <option value="Brat dziadka" {% if wybrana_rola == "Brat dziadka" %}selected{% endif %}>Brat dziadka</option>
+                            <option value="Siostra babci" {% if wybrana_rola == "Siostra babci" %}selected{% endif %}>Siostra babci</option>
+                            <option value="Brat babci" {% if wybrana_rola == "Brat babci" %}selected{% endif %}>Brat babci</option>
+                            <option value="Siostra dziadka" {% if wybrana_rola == "Siostra dziadka" %}selected{% endif %}>Siostra dziadka</option>
+                            <option value="Brat prababci" {% if wybrana_rola == "Brat prababci" %}selected{% endif %}>Brat prababci</option>
+                            <option value="Siostra prababci" {% if wybrana_rola == "Siostra prababci" %}selected{% endif %}>Siostra prababci</option>
+                            <option value="Wujek babci/dziadka" {% if wybrana_rola == "Wujek babci/dziadka" %}selected{% endif %}>Wujek babci/dziadka</option>
+                            <option value="Kuzyn rodzica" {% if wybrana_rola == "Kuzyn rodzica" %}selected{% endif %}>Kuzyn rodzica</option>
+                            <option value="Kuzyn/kuzynka" {% if wybrana_rola == "Kuzyn/kuzynka" %}selected{% endif %}>Kuzyn/kuzynka</option>
+                            <option value="Wnuk/wnuczka" {% if wybrana_rola == "Wnuk/wnuczka" %}selected{% endif %}>Wnuk/wnuczka</option>
+                            <option value="Inny krewny" {% if wybrana_rola == "Inny krewny" %}selected{% endif %}>Inny krewny</option>
+                        </select>
+                    </div>
+                    <div class="form-group"><label>Imię:</label><input type="text" name="p_imie_{{ i }}" value="{{ aktywne_imiona[i] if i < aktywne_imiona|length else '' }}"></div>
+                    <div class="form-group"><label>Data Urodzenia:</label><input type="date" name="p_ur_{{ i }}" value="{{ aktywne_ur[i] if i < aktywne_ur|length else '' }}"></div>
+                    <div class="form-group"><label>Data Transformacji (Opcjonalnie):</label><input type="date" name="p_sm_{{ i }}" value="{{ aktywne_sm[i] if i < aktywne_sm|length else '' }}"></div>
+                </fieldset>
+                {% endfor %}
+            </div>
+            <button type="submit" name="akcja_dekoduj" value="TAK" class="btn" style="margin-top: 20px;">Uruchom Pełne Mapowanie Konstelacji Pola</button>
+        </form>
+
+        {% if p1 %}
+        <hr style="margin: 40px 0; border: 0; border-top: 2px solid #ccc;">
+        <h2>🧬 Rezultaty Inteligentnego Mapowania Krzyżowego</h2>
+        <div style="margin-bottom: 25px; display: grid; gap: 10px;">
+            {% for m in mecze %}
+            <div class="card match">{{ m|safe }}</div>
+            {% endfor %}
+        </div>
+
+        {% if gilgul_zbieznosci %}
+        <section class="card" style="border-left-color:#8A6D3B; background:#FBF8EF;">
+          <h2>🕯️ Gilgul — symboliczne zbieżności dat w rodzinie</h2>
+          <p>Moduł pokazuje osoby, których data narodzin przypada w tę samą datę kalendarzową co rocznica śmierci krewnego. To inspiracja do refleksji nad pamięcią i więzią rodową, a nie dowód reinkarnacji ani przyczynowego przekazu duchowego.</p>
+          {% for g in gilgul_zbieznosci %}<div class="card" style="border-left-color:#8A6D3B;"><strong>{{ g.zyjaca }} ({{ g.rel_zyjacej }}) ↔ {{ g.zmarla }} ({{ g.rel_zmarlej }})</strong><p>{{ g.opis }}</p></div>{% endfor %}
+        </section>
+        {% endif %}
+
+        {% if synergie_rodowe %}
+        <hr style="margin: 35px 0; border: 0; border-top: 2px solid #CDBB96;">
+        <h2>🌳 Synergia Rodowa — analiza szczegółowa</h2>
+        <p style="color:#6D5635;">Porównanie symbolicznych wzorców liczbowych. Interpretacje są narzędziem refleksji, nie dowodem biologicznego lub psychologicznego dziedziczenia.</p>
+        {% for syn in synergie_rodowe %}
+        <section class="card" style="border-left-color:#9A7945; background:#FBF8EF;">
+          <h3>{{ syn.a }} ↔ {{ syn.b }}{% if syn.relacja %} ({{ syn.relacja }}){% endif %}</h3>
+          {% if syn.alert_wezla %}<div class="card match" style="border-left-color:#9A7945;">⚠️ <strong>{{ syn.alert_opis }}</strong></div>{% endif %}
+          <div class="mini-grid">{% for punkt in syn.punkty %}<div class="mini-card"><span>{{ punkt.nazwa }}</span><strong>{{ punkt.a }} ↔ {{ punkt.b }}</strong><small>{{ punkt.typ }}</small><p>{{ punkt.opis }}</p></div>{% endfor %}</div>
+          {% if syn.dopelnienia %}<h4>Dopełnianie misji (Dar–Tikkun)</h4><ul>{% for opis in syn.dopelnienia %}<li>{{ opis }}</li>{% endfor %}</ul>{% endif %}
+          <h4>Wibracja wspólnej misji rodowej</h4><p>{{ syn.misja.opis }}</p>
+        </section>
+        {% endfor %}
+        {% endif %}
+
+        <h2>👥 Profile Indywidualne 6 Punktów Matrycy</h2>
+        <div class="grid">
+            <div class="card" style="border-left-width: 8px;">
+                <h3>{{ imie1 }} (Profil Główny)</h3>
+                Dar (Prawa): <b>{{ p1.Prawa }}</b> | Karma (Lewa): <span style="color:#C0392B; font-weight:bold;">{{ p1.Lewa }}</span> | Talent: <b>{{ p1.Talent }}</b><br>
+                Głęboka Osobowość: <b>{{ p1.Gleboka }}</b> | Węzeł Oporu: <b>{{ p1.Wezel }}</b> | Tikkun: <b>{{ p1.Tikkun }}</b>
+                {% if posag1 %}
+                <br><br><small style="color:#104F55; font-weight:bold;">Posag z Przejścia Profilu Głównego: {{ posag1.Transformacja }}</small>
+                {% endif %}
+            </div>
+            {% for item in aktywne_profile_wynik %}
+            <div class="card" style="border-left-color: #104F55;">
+                <h3>{{ item.imie or item.rel }} ({{ item.rel }})</h3>
+                <div class="mini-grid">
+                    <div class="mini-card">Dar<strong>{{ item.prof.Prawa }}</strong></div>
+                    <div class="mini-card">Karma<strong>{{ item.prof.Lewa }}</strong></div>
+                    <div class="mini-card">Talent<strong>{{ item.prof.Talent }}</strong></div>
+                    <div class="mini-card">Głęboka<strong>{{ item.prof.Gleboka }}</strong></div>
+                    <div class="mini-card">Węzeł<strong>{{ item.prof.Wezel }}</strong></div>
+                    <div class="mini-card">Tikkun<strong>{{ item.prof.Tikkun }}</strong></div>
+                </div>
+                {% if item.pos %}
+                <br><small style="color:#104F55; font-weight:bold;">Posag z Przejścia: {{ item.pos.Transformacja }}</small>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+        
+        <hr style="margin: 40px 0; border: 0; border-top: 2px solid #ccc;">
+        <h2>🖨️ Centrum Eksportu: Raport Architektury Kodu Duszy</h2>
+        <form action="/pobierz-pdf" method="POST" style="background: #FAF9F6; padding: 20px; border-radius: 8px; border: 2px dashed #4A154B;">
+            <input type="hidden" name="d_imie1" value="{{ imie1 }}"><input type="hidden" name="d_ur1" value="{{ data_ur1 }}"><input type="hidden" name="d_sm1" value="{{ data_sm1 }}">
+            <input type="hidden" name="d_ile_osob" value="{{ ile_osob }}">
+            {% for i in range(ile_osob) %}
+            <input type="hidden" name="d_rel_{{ i }}" value="{{ aktywne_role[i] if i < aktywne_role|length else 'Brat' }}">
+            <input type="hidden" name="d_imie_{{ i }}" value="{{ aktywne_imiona[i] if i < aktywne_imiona|length else '' }}">
+            <input type="hidden" name="d_ur_{{ i }}" value="{{ aktywne_ur[i] if i < aktywne_ur|length else '' }}">
+            <input type="hidden" name="d_sm_{{ i }}" value="{{ aktywne_sm[i] if i < aktywne_sm|length else '' }}">
+            {% endfor %}
+            <div class="form-group">
+                <label>Wybierz wariant raportu do wydruku (układ kartowy vintage):</label>
+                <select name="typ_wydruku" style="padding: 10px; border: 2px solid #4A154B; font-weight: bold; background: #FFFDF9;">
+                    <option value="PELNY">Pełny raport konstelacji — układ kartowy (profil główny i osoby z datą urodzenia)</option>
+                    <option value="OSOBISTY">Raport osobisty — 6 kart profilu głównego</option>
+                </select>
+            </div>
+            <button type="submit" class="btn" style="background: #4A154B; margin-top:10px;">📥 Pobierz Raport Architektury Kodu Duszy (PDF)</button>
+        </form>
+        {% endif %}
+    </div>
+</body>
+</html>
+
+
+
+
+
+
+
