@@ -1,0 +1,1 @@
+# architektura-kodu-duszy-wersja-1
